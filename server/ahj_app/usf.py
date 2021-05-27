@@ -355,6 +355,7 @@ def create_admin_user():
     )
     admin.is_active = True
     admin.is_staff = True
+    admin.is_superuser = True
     admin.save()
     webpage_api_token = WebpageToken.objects.create(user=admin)
     api_token = APIToken.objects.create(user=admin)
