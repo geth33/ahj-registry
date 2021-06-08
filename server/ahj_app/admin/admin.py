@@ -5,9 +5,9 @@ from django.contrib import admin
 from django.contrib.gis import admin as geo_admin
 
 from .actions import user_reset_password, user_generate_api_token, user_delete_toggle_api_token
+from .form import UserChangeForm
 
 USER_DATA_MODELS = {
-    'AHJUserMaintains',
     'APIToken',
     'Comment',
     'Edit',
@@ -109,14 +109,14 @@ def get_default_model_admin_class(model, geo=False):
     model_fields = [field for field in model._meta.fields]
     if geo:
         class DefaultPolygonAdmin(geo_admin.OSMGeoAdmin):
-            search_fields = [field.name for field in model_fields if is_char_field(field)]
             list_display = [field.name for field in model_fields if not is_related_field(field)]
+            search_fields = list_display
             raw_id_fields = [field.name for field in model_fields if is_related_field(field)]
         return DefaultPolygonAdmin
     else:
         class DefaultAdmin(admin.ModelAdmin):
-            search_fields = [field.name for field in model_fields if is_char_field(field)]
             list_display = [field.name for field in model_fields if not is_related_field(field)]
+            search_fields = list_display
             raw_id_fields = [field.name for field in model_fields if is_related_field(field)]
         return DefaultAdmin
 
@@ -213,6 +213,18 @@ for action in admin_actions_to_add:
 
 user_admin_model.list_display.remove('password')
 user_admin_model.list_display.insert(0, user_admin_model.list_display.pop(user_admin_model.list_display.index('UserID')))
+user_admin_model.form = UserChangeForm
+
+
+"""
+Customizing Contact Admin Model:
+Removing from list_display:
+ - ParentTable
+ - ParentID
+"""
+contact_admin_model = model_admin_dict['Contact']['admin_model']
+contact_admin_model.list_display.remove('ParentTable')
+contact_admin_model.list_display.remove('ParentID')
 
 
 """
