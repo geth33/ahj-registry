@@ -439,9 +439,7 @@ class User(AbstractBaseUser):
     Photo = models.CharField(db_column='Photo', max_length=255, null=False, default='')
     IsPeerReviewer = models.IntegerField(db_column='IsPeerReviewer', null=True, default=False)
     NumReviewsDone = models.IntegerField(db_column='NumReviewsDone', default=0)
-    AcceptedEdits = models.IntegerField(db_column='NumAcceptedEdits', default=0)
-    SubmittedEdits = models.IntegerField(db_column='NumSubmittedEdits', default=0)
-    CommunityScore = models.IntegerField(db_column='CommunityScore', default=0)
+    NumAPICalls = models.IntegerField(db_column='NumAPICalls', default=0)
     SecurityLevel = models.IntegerField(db_column='SecurityLevel', default=3)
 
     USERNAME_FIELD = 'Email'
@@ -449,6 +447,12 @@ class User(AbstractBaseUser):
     
     def get_email_field_name(self=None):
         return "Email"
+    
+    def get_num_submitted_edits(self):
+        return Edit.objects.filter(ChangedBy=self).count()
+    
+    def get_num_accepted_edits(self):
+        return Edit.objects.filter(ChangedBy=self).filter(ReviewStatus='A').count()
 
     def get_maintained_ahjs(self):
         return [ahjpk.AHJPK.AHJPK for ahjpk in AHJUserMaintains.objects.filter(UserID=self).filter(MaintainerStatus=True)]

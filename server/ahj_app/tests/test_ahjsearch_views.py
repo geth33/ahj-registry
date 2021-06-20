@@ -4,6 +4,7 @@ from django.http import HttpRequest
 from ahj_app.models import User, Edit, Comment
 from ahj_app.models_field_enums import *
 from fixtures import *
+from constants import *
 from ahj_app.utils import *
 import pytest
 import datetime
@@ -457,3 +458,19 @@ def test_ahj_geo_location__search_array_has_ahj(list_of_ahjs, client_with_creden
     response = client_with_credentials.post(url, { 'ahjs_to_search': ['78d2735b-b581-45ba-8cb6-2dea58596e97', '8ac31936-ebfc-4713-8ca6-1646ae38353c'], 'Location': valid_location_ob}, format='json')
     assert len(response.data) == 1
     assert response.status_code == 200
+
+@pytest.mark.parametrize(
+   'urlName, args', [
+       ('ahj-public', { 'Location': {'Longitude': { 'Value': 'hello' }, 'Latitude': { 'Value': 'hello' }}}), # pass invalid args to each so early exit
+       ('ahj-geo-address', {}),
+       ('ahj-geo-location', { 'Latitude': { 'V': '25' }}),
+   ]
+)
+@pytest.mark.django_db
+def test_user_num_api_calls_updates(urlName, args, list_of_ahjs, generate_client_with_api_credentials, valid_location_ob):
+    client = generate_client_with_api_credentials(Email='a@a.a')
+    url = reverse(urlName)
+    # call fails early, so it's expected that api call num is incremented at the start
+    response = client.post(url, args, format='json')
+    user = User.objects.get(Email='a@a.a')
+    assert user.NumAPICalls == 1

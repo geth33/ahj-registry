@@ -216,11 +216,10 @@ class UserSerializer(serializers.Serializer):
     Photo = serializers.CharField()
     IsPeerReviewer = serializers.IntegerField()
     NumReviewsDone = serializers.IntegerField()
-    AcceptedEdits = serializers.IntegerField()
-    SubmittedEdits = serializers.IntegerField()
-    CommunityScore = serializers.IntegerField()
+    NumAPICalls = serializers.IntegerField()
     SignUpDate = serializers.DateField()
-    MaintainedAHJs = serializers.ListField(source='get_maintained_ahjs')
+    AcceptedEdits = serializers.IntegerField(source='get_num_accepted_edits')
+    SubmittedEdits = serializers.IntegerField(source='get_num_submitted_edits')
     APIToken = serializers.CharField(source='get_API_token')
 
 
@@ -231,7 +230,7 @@ class UserCreateSerializer(UserCreateSerializer):
     """
     class Meta(UserCreateSerializer.Meta):
         model = User
-        fields = ('UserID', 'ContactID', 'Username', 'password', 'Email', 'is_staff', 'is_active', 'SignUpDate', 'PersonalBio', 'URL', 'CompanyAffiliation', 'Photo', 'IsPeerReviewer', 'NumReviewsDone', 'CommunityScore', 'SecurityLevel')
+        fields = ('UserID', 'ContactID', 'Username', 'password', 'Email', 'is_staff', 'is_active', 'SignUpDate', 'PersonalBio', 'URL', 'CompanyAffiliation', 'Photo', 'IsPeerReviewer', 'NumReviewsDone', 'SecurityLevel')
 
 
 class CommentSerializer(serializers.Serializer):

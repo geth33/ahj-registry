@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from .authentication import APITokenAuth
 from .serializers import AHJSerializer
 from .utils import order_ahj_list_AHJLevelCode_PolygonLandArea, filter_ahjs, get_str_location, \
-    get_public_api_serializer_context, get_ob_value_primitive, get_str_address, get_location_gecode_address_str, check_address_empty
+    get_public_api_serializer_context, get_ob_value_primitive, get_str_address, get_location_gecode_address_str, check_address_empty, update_user_api_call_num
 
 
 @api_view(['POST'])
@@ -21,6 +21,9 @@ def ahj_list(request):
     """
     # By default select all the AHJs
     # filter by the latitude, longitude
+
+    if (request.user.is_authenticated):
+        update_user_api_call_num(request.user)
 
     # Process sent Location object
     str_location = None
@@ -76,6 +79,9 @@ def ahj_list(request):
 @authentication_classes([APITokenAuth])
 @permission_classes([IsAuthenticated])
 def ahj_geo_location(request):
+    if (request.user.is_authenticated):
+        update_user_api_call_num(request.user)
+
     ahjs_to_search = request.data.get('ahjs_to_search', None)
 
     # If sent an Orange Button Address containing Location
@@ -106,6 +112,9 @@ def ahj_geo_location(request):
 @authentication_classes([APITokenAuth])
 @permission_classes([IsAuthenticated])
 def ahj_geo_address(request):
+    if (request.user.is_authenticated):
+        update_user_api_call_num(request.user)
+
     ahjs_to_search = request.data.get('ahjs_to_search', None)
 
     ob_address = request.data.get('Address', None)
