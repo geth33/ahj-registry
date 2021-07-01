@@ -37,7 +37,7 @@ GDAL_LIBRARY_PATH = '/usr/local/lib/libgdal.so'
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    'ahj_app.apps.AhjAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'django_filters',
     'ahj_app.apps.AhjConfig',
     'djoser',
-    'corsheaders'
+    'corsheaders',
+    'simple_history'
 ]
 
 MIDDLEWARE = [
@@ -62,7 +63,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'ahj_app.middleware.LoggingMiddleware.SkipRequestLoggingMiddleware'
+    'ahj_app.middleware.LoggingMiddleware.SkipRequestLoggingMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True # If this is used then `CORS_ORIGIN_WHITELIST` will not have any effect
@@ -89,13 +91,21 @@ REST_FRAMEWORK = {
     ],
     'COERCE_DECIMAL_TO_STRING': False,
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 20
+    'PAGE_SIZE': 20,
+    'DEFAULT_THROTTLE_CLASSES': [
+        # 'rest_framework.throttling.UserRateThrottle',
+        # 'rest_framework.throttling.AnonRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        # 'user': '10/day',
+        'anon': '10/day'
+    }
 }
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -133,7 +143,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
             'verbose': {
-                'format': '{levelname} {request.user} {request.auth} {asctime} {message}',
+                'format': '{levelname} {request.user} {request.auth} {request.META[REMOTE_ADDR]} {asctime} {message}',
                 'style': '{',
             },
             'simple': {

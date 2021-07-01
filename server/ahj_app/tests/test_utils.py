@@ -341,3 +341,10 @@ def test_update_user_api_call_num(create_user):
     assert user.NumAPICalls == 0
     update_user_api_call_num(user)
     assert user.NumAPICalls == 1
+
+@pytest.mark.django_db
+def test_filter_dict_keys():
+    dict_to_filter = {'key1': 'value1', 'key2': 'value2'}
+    keys_to_keep = {'key1'}
+    filtered_dict = filter_dict_keys(dict_to_filter, keys_to_keep)
+    assert filtered_dict == {'key1': 'value1'}
