@@ -4,7 +4,6 @@ from fixtures import *
 import pytest
 import datetime
 
-from ahj_app.models import Contact
 
 def create_ahj(ahjpk, ahjid, mpoly_obj):
     polygon = Polygon.objects.create(Polygon=mpoly_obj, LandArea=1, WaterArea=1, InternalPLatitude=1, InternalPLongitude=1)
@@ -478,13 +477,14 @@ def test_user_get_maintained_ahjs(create_user, two_ahjs):
 @pytest.mark.django_db
 def test_user_get_API_token__token_exists(create_user):
     user = create_user()
-    token = APIToken.objects.create(user=user)
-    assert user.get_API_token() == token.key
+    token = user.api_token
+    assert user.get_API_token() == token
 
 @pytest.mark.django_db
 def test_user_get_API_token__token_does_not_exist(create_user):
     user = create_user()
-    assert user.get_API_token() == ''
+    user.api_token.delete()
+    assert user.get_API_token() is None
 
 """
     WebpageToken Model
@@ -506,8 +506,7 @@ def test_WebpageToken_str(create_user):
 """
 @pytest.mark.django_db
 def test_APIToken_str(create_user):
-    user = create_user(Email='a@a.com')
-    token = APIToken.objects.create(user=user)
+    token = create_user(Email='a@a.com').api_token
     assert str(token) == 'APIToken(' + token.key + ')'
 
 """

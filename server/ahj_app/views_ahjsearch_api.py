@@ -19,8 +19,10 @@ from .utils import order_ahj_list_AHJLevelCode_PolygonLandArea, filter_ahjs, get
     get_public_api_serializer_context, get_ob_value_primitive, get_str_address, get_location_gecode_address_str, check_address_empty
 
 
-
 def deactivate_expired_api_tokens():
+    """
+    Sets the ``is_active`` field to ``False`` for APIToken rows whose ``expires`` date has passed.
+    """
     APIToken.objects.filter(is_active=True, expires__lte=timezone.now()).update(is_active=False)
 
 
@@ -30,12 +32,8 @@ def deactivate_expired_api_tokens():
 @throttle_classes([MemberRateThrottle])
 def ahj_list(request):
     """
-    Functional view for the AHJList
+    Public API endpoint for AHJ Search. See the API documentation for more information.
     """
-    # By default select all the AHJs
-    # filter by the latitude, longitude
-
-    # Process sent Location object
     str_location = None
     try:
         ob_location = request.data.get('Location', None)
@@ -90,6 +88,10 @@ def ahj_list(request):
 @permission_classes([IsAuthenticated])
 @throttle_classes([MemberRateThrottle])
 def ahj_geo_location(request):
+    """
+    Public API endpoint for searching AHJs by Location.
+    This endpoint is from AHJ Registry 1.0, and the AHJ Registry 2.0 ``ahj_list`` endpoint should be used instead.
+    """
     ahjs_to_search = request.data.get('ahjs_to_search', None)
 
     # If sent an Orange Button Address containing Location
@@ -121,6 +123,10 @@ def ahj_geo_location(request):
 @permission_classes([IsAuthenticated])
 @throttle_classes([MemberRateThrottle])
 def ahj_geo_address(request):
+    """
+    Public API endpoint for searching AHJs by Address.
+    This endpoint is from AHJ Registry 1.0, and the AHJ Registry 2.0 ``ahj_list`` endpoint should be used instead.
+    """
     ahjs_to_search = request.data.get('ahjs_to_search', None)
 
     ob_address = request.data.get('Address', None)
